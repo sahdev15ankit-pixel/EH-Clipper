@@ -123,6 +123,9 @@ def _ydl_progress_hook(d: dict) -> None:
 
 def _apply_cookies(opts: dict, cookies: str | None) -> None:
     """Apply cookies to yt-dlp options dictionary."""
+    # The yt-dlp Python API does not enable a JS runtime by default (the CLI does).
+    # Without one, YouTube's "n challenge" fails and only images are offered.
+    opts.setdefault("js_runtimes", {"deno": {}, "node": {}})
     if not cookies:
         return
     if cookies.endswith(".txt") or os.path.isfile(cookies):
