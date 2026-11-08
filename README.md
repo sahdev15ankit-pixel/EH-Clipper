@@ -30,5 +30,22 @@ python main.py --url "<youtube-url>" --clips 5 --ratio 9:16 --font-style HINDI -
 ```
 See `python main.py --help` for all options (aspect ratios, hook length, uploaders, B-roll, music).
 
+## Editing options (`clipping/polish`)
+These stages sit on top of the clipper. All are off unless you pass the flag.
+
+| Flag | What it does |
+|---|---|
+| `--tighten` | Actually cuts silences and filler words (um, uh, hmm...) from the source, on word boundaries, before clipping. Gemini then sees the tightened transcript. `--silence-trim` only *asks* the AI to avoid dead air; this really cuts. Tune with `--silence-max-gap`, `--filler-words matlab,basically`, `--keep-fillers`. |
+| `--grade subtle\|punch\|cinematic` | Colour grade on finished clips. |
+| `--loudnorm` | Normalises clip loudness to about -16 LUFS. |
+| `--broll-source pexels\|web\|both` | `pexels` (default) is licensed stock. `web` pulls short sections from channels you list in `trusted_sources.json` via yt-dlp. `both` tries web first. |
+| `--review-page` | Writes `outputs/review.html` and `postpack.json`: every clip playable, with copy-paste titles, captions, hashtags and YouTube text. |
+
+**Your own footage:** pass a file path instead of a link, e.g. `python main.py --url walkthrough.mp4 --tighten --grade subtle --review-page`. Any format ffmpeg reads works.
+
+**Web B-roll and licensing:** copy `trusted_sources.example.json` to `trusted_sources.json` and list only channels you own or have permission to reuse. Only those channels are searched, and every clip used is logged in `outputs/broll_credits.json`. Clips from other people's channels are not licensed to you just because yt-dlp can download them.
+
+Tests: `pytest tests/`
+
 ## Credits and license
 EH-Clipper is built on the open-source project [opensource-clipping](https://github.com/NaufalRizqullah/opensource-clipping) by Muhammad Naufal Rizqullah (MIT License). The original README is kept in `docs/UPSTREAM_README.md`. Our changes and additions are © Evank Homes. See `LICENSE`.

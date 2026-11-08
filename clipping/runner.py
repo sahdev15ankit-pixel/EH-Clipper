@@ -10,6 +10,7 @@ import os
 
 from . import diarization as diarization_mod
 from . import engine, metadata, studio, hook_manager, voiceover
+from .polish import grade as polish_grade, review as polish_review, tighten as polish_tighten
 
 
 def run_pipeline(cfg, whisper_model_instance=None) -> list[dict]:
@@ -82,6 +83,22 @@ def run_pipeline(cfg, whisper_model_instance=None) -> list[dict]:
             language=getattr(cfg, "whisper_language", None),
             whisper_model_instance=whisper_model_instance,
         )
+
+    # Step 2.5 — Tighten: cut silences / filler words and remap the transcript onto the new timeline
+    if getattr(cfg, "tighten", False):
+        try:
+            import cv2 as _cv2
+            _cap = _cv2.VideoCapture(cfg.file_video_asli)
+            _h = int(_cap.get(_cv2.CAP_PROP_FRAME_HEIGHT))
+            _cap.release()
+            _enc = studio.detect_video_encoder(cfg, target_h=_h)
+            result = polish_tighten.tighten_source(
+                cfg.file_video_asli, data_segmen, cfg, video_encoder_args=_enc["args"]
+            )
+            if result:
+                cfg.file_video_asli, data_segmen, transkrip_lengkap = result
+        except Exception as e:
+            print(f"⚠️ Tighten gagal ({e}); lanjut dengan video asli.")
 
     # Step 3 — Gemini AI analysis
     gemini_output_path = os.path.join(cfg.outputs_dir, "gemini_response.json")
@@ -254,6 +271,12 @@ def run_pipeline(cfg, whisper_model_instance=None) -> list[dict]:
         if not row.get("source_url"):
             row["source_url"] = getattr(cfg, "url_youtube", None)
 
+    # Step 7.5 — Polish: grade + loudness on finished clips
+    try:
+        polish_grade.polish_clips(render_manifest, cfg, encoder_args=video_encoder["args"])
+    except Exception as e:
+        print(f"⚠️ Polish gagal ({e}); klip dibiarkan apa adanya.")
+
     # Step 8 — Save manifest
     manifest_path = os.path.join(cfg.outputs_dir, "render_manifest.json")
     with open(manifest_path, "w", encoding="utf-8") as f:
@@ -263,6 +286,15 @@ def run_pipeline(cfg, whisper_model_instance=None) -> list[dict]:
         f"\n💾 Render manifest disimpan ke {manifest_path} ({len(render_manifest)} item)"
     )
 
+
+    if getattr(cfg, "review_page", False):
+        try:
+            page = polish_review.write_review_page(
+                render_manifest, cfg.outputs_dir, source_label=str(getattr(cfg, "url_youtube", ""))
+            )
+            print(f"🌐 Review page: {page}")
+        except Exception as e:
+            print(f"⚠️ Review page gagal: {e}")
 
     return render_manifest
 

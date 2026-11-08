@@ -238,11 +238,19 @@ def proses_klip(
     broll_list = clip.get("broll_list", [])
     broll_aktif = []
     if cfg.use_broll and broll_list:
-        print(f"   🎥 Mendownload {len(broll_list)} video B-Roll dari Pexels...")
+        print(f"   🎥 Mendownload {len(broll_list)} video B-Roll (sumber: {getattr(cfg, 'broll_source', 'pexels')})...")
         for i, br in enumerate(broll_list):
             q = br.get("search_query", "nature")
             file_broll = f"temp_broll_{rank}_{i}.mp4"
-            if download_pexels_broll(q, rasio, file_broll, cfg.pexels_api_key):
+            broll_source = getattr(cfg, "broll_source", "pexels")
+            got = False
+            if broll_source in ("web", "both"):
+                from clipping.polish import web_broll
+                seconds = float(br.get("end_time", 0) or 0) - float(br.get("start_time", 0) or 0)
+                got = web_broll.download_web_broll(q, rasio, file_broll, cfg, seconds=seconds or 5.0)
+            if not got and broll_source in ("pexels", "both"):
+                got = download_pexels_broll(q, rasio, file_broll, cfg.pexels_api_key)
+            if got:
                 br_copy = dict(br)
                 br_copy["filepath"] = file_broll
                 broll_aktif.append(br_copy)
