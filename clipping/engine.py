@@ -54,7 +54,30 @@ _PLATFORM_LABELS = {
     "tiktok": "TikTok",
     "instagram": "Instagram",
     "gdrive": "Google Drive",
+    "local": "Local file",
 }
+
+
+def _import_local_video(path: str, output_path: str) -> None:
+    """Use your own footage (phone clip, screen recording, site walkthrough) as the source."""
+    import shutil
+    import subprocess
+
+    path = os.path.abspath(os.path.expanduser(path))
+    if not os.path.isfile(path):
+        raise FileNotFoundError(f"❌ Local video not found: {path}")
+    if os.path.abspath(output_path) == path:
+        return
+    if path.lower().endswith(".mp4"):
+        shutil.copyfile(path, output_path)
+    else:
+        # .mov / .mkv / .webm etc: normalise to H.264/AAC mp4 so every later stage can read it.
+        subprocess.run(
+            ["ffmpeg", "-hide_banner", "-loglevel", "error", "-y", "-i", path,
+             "-c:v", "libx264", "-preset", "veryfast", "-crf", "17", "-pix_fmt", "yuv420p",
+             "-c:a", "aac", "-b:a", "192k", "-movflags", "+faststart", output_path],
+            check=True,
+        )
 
 
 def _extract_gdrive_file_id(url: str) -> str | None:
@@ -157,6 +180,12 @@ def download_video(
         print("      🎯 Source quality: highest available", flush=True)
     else:
         print(f"      🎯 Source quality: up to {download_source_height}p", flush=True)
+
+    # --- Local file: no download, just import ---
+    if source_platform == "local":
+        _import_local_video(url, output_path)
+        print("      ✅ Local video imported.", flush=True)
+        return
 
     # --- Google Drive: use gdown instead of yt-dlp ---
     if source_platform == "gdrive":

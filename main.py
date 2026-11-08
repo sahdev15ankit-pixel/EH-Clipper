@@ -25,6 +25,7 @@ def _print_banner(cfg, version, url, idx=None, total=None):
         "tiktok": "TikTok",
         "instagram": "Instagram",
         "gdrive": "Google Drive",
+        "local": "Local file",
     }
     platform_key = getattr(cfg, "source_platform", "youtube")
     platform_label = _PLATFORM_LABELS.get(platform_key, platform_key)

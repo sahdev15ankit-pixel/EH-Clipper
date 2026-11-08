@@ -254,9 +254,52 @@ def _build_parser() -> argparse.ArgumentParser:
     )
     p.add_argument(
         "--source",
-        choices=["youtube", "tiktok", "instagram", "gdrive"],
+        choices=["youtube", "tiktok", "instagram", "gdrive", "local"],
         default=SOURCE_PLATFORM,
-        help="Video source platform. Determines download behavior and subtitle availability.",
+        help="Video source platform. Determines download behavior and subtitle availability. "
+             "'local' (or just passing an existing file path to --url) uses your own footage.",
+    )
+
+    # --- Polish: tighten / grade / web B-roll / review page (clipping.polish) ---
+    polish_group = p.add_argument_group("Polish (silence cut, grade, web B-roll, review page)")
+    polish_group.add_argument(
+        "--tighten", action="store_true", default=False,
+        help="Actually cut silences and filler words (um/uh/hmm...) from the source, word-aligned. "
+             "Unlike --silence-trim, which only asks the AI to avoid dead air.",
+    )
+    polish_group.add_argument(
+        "--silence-max-gap", type=float, default=0.7,
+        help="With --tighten: pauses longer than this many seconds are shortened (default 0.7).",
+    )
+    polish_group.add_argument(
+        "--filler-words", type=str, default=None,
+        help="With --tighten: extra comma-separated filler words to cut, on top of the built-in um/uh/hmm set.",
+    )
+    polish_group.add_argument(
+        "--keep-fillers", action="store_true", default=False,
+        help="With --tighten: cut silences only, leave filler words in.",
+    )
+    polish_group.add_argument(
+        "--grade", choices=["none", "subtle", "punch", "cinematic"], default="none",
+        help="Colour grade applied to finished clips (default: none).",
+    )
+    polish_group.add_argument(
+        "--loudnorm", action="store_true", default=False,
+        help="Normalise finished clips to about -16 LUFS (social-feed loudness).",
+    )
+    polish_group.add_argument(
+        "--broll-source", choices=["pexels", "web", "both"], default="pexels",
+        help="Where B-roll comes from. 'web' pulls short sections from the channels listed in "
+             "--trusted-sources via yt-dlp; 'both' tries web first, then Pexels.",
+    )
+    polish_group.add_argument(
+        "--trusted-sources", type=str, default=None,
+        help="JSON file listing the channels web B-roll may use (default: ./trusted_sources.json). "
+             "Only list channels you own or have permission to reuse.",
+    )
+    polish_group.add_argument(
+        "--review-page", action="store_true", default=False,
+        help="Write outputs/review.html: every clip playable, with copy-paste captions and hashtags.",
     )
     p.add_argument(
         "--tiktok",
@@ -808,6 +851,10 @@ def build_config(argv: list[str] | None = None) -> SimpleNamespace:
     # Normalize URL list for batch support
     url_list = args.url if isinstance(args.url, list) else ([args.url] if args.url else [])
 
+    # An existing file path is your own footage: no flag needed.
+    if url_list and args.source != "local" and all(os.path.isfile(os.path.expanduser(u)) for u in url_list):
+        args.source = "local"
+
     # Validate watermark args
     if args.watermark:
         if not args.text and not args.image:
@@ -882,6 +929,16 @@ def build_config(argv: list[str] | None = None) -> SimpleNamespace:
         no_segment_trim=args.no_segment_trim,
         silence_trim=args.silence_trim,
         use_broll=not args.no_broll,
+        # Polish stages (clipping.polish)
+        tighten=args.tighten,
+        silence_max_gap=args.silence_max_gap,
+        filler_words=args.filler_words,
+        keep_fillers=args.keep_fillers,
+        grade=args.grade,
+        loudnorm=args.loudnorm,
+        broll_source=args.broll_source,
+        trusted_sources=args.trusted_sources,
+        review_page=args.review_page,
         use_hook_glitch=not args.no_hook,
         use_auto_bgm=not args.no_bgm,
         use_karaoke_effect=not args.no_karaoke,

@@ -1,0 +1,12 @@
+[
+  {
+    "name": "Your own channel",
+    "channel": "https://www.youtube.com/@your-channel-handle",
+    "topics": ["interior", "kitchen", "living room", "renovation"]
+  },
+  {
+    "name": "A channel that gave you written permission",
+    "channel": "https://www.youtube.com/@permitted-channel",
+    "topics": ["furniture", "tiles"]
+  }
+]
