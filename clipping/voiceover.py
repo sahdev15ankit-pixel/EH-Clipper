@@ -28,6 +28,10 @@ except ImportError:
 # Sample in git: https://github.com/yaph/tts-samples/blob/main/mp3/English/en-US-GuyNeural.mp3
 
 AVAILABLE_VOICES = {
+    "hi": {
+        "male": ["hi-IN-MadhurNeural"],
+        "female": ["hi-IN-SwaraNeural"],
+    },
     "id": {
         "male": [
             "id-ID-ArdiNeural",
@@ -166,6 +170,8 @@ def _consolidate_segments(raw_segments: list[dict], words_per_seg: int = 3) -> l
 
 def get_commentary_prompt(transcript_snippet: str, style: str, language: str, length: str) -> str:
     lang_instruction = "Gunakan bahasa Indonesia yang gaul tapi profesional (seperti narator YouTube/TikTok)."
+    if language == "hi":
+        lang_instruction = "Use natural conversational Hinglish (Hindi in Roman script) suitable for an Indian YouTube/Instagram Reels narrator."
     if language == "en":
         lang_instruction = "Use engaging, conversational English suitable for a YouTube/TikTok narrator."
         

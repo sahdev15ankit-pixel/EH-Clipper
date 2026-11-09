@@ -11,7 +11,7 @@ Built and maintained by the Evank Homes / Nali Spaces team.
 4. Renders 9:16 clips with face tracking, a hook teaser, karaoke-style subtitles and thumbnails.
 
 ## What's different in EH-Clipper
-- **Hindi + English subtitles:** `--font-style HINDI` uses Poppins, which covers both Devanagari and Latin, so Hindi text never turns into boxes.
+- **Hindi + English subtitles:** `--font-style BILINGUAL` uses Poppins, which covers both Devanagari and Latin, so Hindi text never turns into boxes.
 - **Language control:** `--whisper-language hi|en`, or leave it on auto-detect.
 - **Transcript cache:** re-running the same video skips transcription.
 - **Sharper encode:** tuned for 1080p vertical output (`--video-cq 19`).
@@ -26,7 +26,7 @@ Built and maintained by the Evank Homes / Nali Spaces team.
 ## Command line
 ```bash
 pip install -r requirements.txt
-python main.py --url "<youtube-url>" --clips 5 --ratio 9:16 --font-style HINDI --video-cq 19
+python main.py --url "<youtube-url>" --clips 5 --ratio 9:16 --font-style BILINGUAL --video-cq 19
 ```
 See `python main.py --help` for all options (aspect ratios, hook length, uploaders, B-roll, music).
 

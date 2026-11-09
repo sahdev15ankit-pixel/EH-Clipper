@@ -812,7 +812,7 @@ ALASAN PEMILIHAN:
 
 ATURAN BAHASA METADATA:
 - title_indonesia tetap wajib diisi untuk kompatibilitas internal / fallback.
-- title_indonesia HARUS dalam Bahasa Indonesia natural dan maksimal 100 karakter.
+- title_indonesia (field 'bahasa lokal') HARUS dalam bahasa asli video (Hindi/Hinglish jika video berbahasa Hindi atau Hinglish; English jika video berbahasa Inggris), natural, dan maksimal 100 karakter.
 - Semua metadata lintas platform utama harus berbahasa Inggris natural.
 - Ini berlaku untuk:
   - title_inggris
@@ -821,13 +821,13 @@ ATURAN BAHASA METADATA:
   - description_context
   - keyword_tags
   - tiktok_caption
-- Khusus kebutuhan TikTok versi Indonesia, juga buat:
+- Khusus kebutuhan TikTok versi bahasa lokal (India), juga buat:
   - tiktok_title_id
   - tiktok_caption_id
-- tiktok_title_id dan tiktok_caption_id HARUS dalam Bahasa Indonesia natural.
+- tiktok_title_id dan tiktok_caption_id HARUS dalam bahasa asli video (Hindi/Hinglish jika video berbahasa Hindi atau Hinglish; English jika video berbahasa Inggris), natural. Untuk Hindi/Hinglish tulis dengan huruf Latin (Roman) kecuali video memakai Devanagari.
 - tiktok_title_id harus lebih deskriptif daripada title_indonesia, boleh lebih panjang dari 100 karakter jika perlu, dan harus menjelaskan isi klip/video dengan jelas.
-- tiktok_caption_id harus natural, informatif, cocok untuk audiens Indonesia, dan boleh sedikit lebih panjang jika itu membantu menjelaskan isi klip.
-- Jangan mencampur Bahasa Indonesia dan Bahasa Inggris di dalam field yang sama.
+- tiktok_caption_id harus natural, informatif, cocok untuk audiens India, dan boleh sedikit lebih panjang jika itu membantu menjelaskan isi klip.
+- Jangan mencampur bahasa lokal dan Bahasa Inggris di dalam field yang sama (Hinglish alami boleh jika memang gaya video).
 - Gunakan English yang natural, ringkas, enak dibaca, dan cocok untuk short-form content.
 - Hindari terjemahan literal yang kaku.
 
@@ -835,7 +835,7 @@ METADATA LINTAS PLATFORM:
 Untuk setiap klip, hasilkan metadata berikut:
 
 1. title_indonesia
-- Bahasa Indonesia natural, singkat, dan relevan.
+- Bahasa asli video (Hindi/Hinglish/English), natural, singkat, dan relevan.
 - Ini hanya untuk kompatibilitas internal / fallback.
 - Maksimal 100 karakter.
 
@@ -882,7 +882,7 @@ Untuk setiap klip, hasilkan metadata berikut:
 - Field ini terutama untuk kebutuhan metadata YouTube.
 
 7. tiktok_title_id
-- Bahasa Indonesia natural.
+- Bahasa asli video (Hindi/Hinglish/English), natural.
 - Lebih panjang dan lebih menjelaskan isi video daripada title_indonesia.
 - Tidak perlu dibatasi 100 karakter, tapi tetap harus ringkas, jelas, dan enak dibaca.
 - Harus relevan dengan isi klip, bukan isi video panjang secara umum.
@@ -890,7 +890,7 @@ Untuk setiap klip, hasilkan metadata berikut:
 
 8. tiktok_caption_id
 - 1 sampai 2 kalimat.
-- HARUS dalam Bahasa Indonesia.
+- HARUS dalam bahasa asli video (Hindi/Hinglish/English).
 - Boleh sedikit lebih panjang daripada caption English jika membantu menjelaskan isi klip.
 - Gaya natural, ringan, dan enak dibaca.
 - Tetap sesuai isi klip.
@@ -913,7 +913,7 @@ ATURAN KUALITAS METADATA:
 - Jika ada angka, frasa kuat, atau statement tajam dari ucapan asli, prioritaskan itu sebagai inspirasi judul/caption.
 - Title, descriptions, dan caption harus saling melengkapi, bukan mengulang kalimat yang sama.
 - Semua field metadata yang dipakai untuk platform harus berbahasa Inggris natural, bukan terjemahan literal yang kaku.
-- Khusus tiktok_title_id dan tiktok_caption_id, gunakan Bahasa Indonesia yang natural, jelas, dan lebih menjelaskan isi klip untuk audiens Indonesia.
+- Khusus tiktok_title_id dan tiktok_caption_id, gunakan bahasa asli video (Hindi/Hinglish/English) yang natural, jelas, dan lebih menjelaskan isi klip untuk audiens India.
 
 ATURAN OUTPUT:
 - Output HARUS berupa JSON array valid.

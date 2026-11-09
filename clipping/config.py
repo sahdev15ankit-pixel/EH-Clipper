@@ -52,7 +52,7 @@ GAYA_FONT_AKTIF = "HORMOZI"
 DAFTAR_FONT = {
     # Hindi (Devanagari) + English in one family. Poppins covers both scripts,
     # so subtitles never show missing-glyph boxes.
-    "HINDI": {
+    "BILINGUAL": {
         "utama": {
             "nama": "Poppins",
             "file": "Poppins-Bold.ttf",
@@ -123,6 +123,8 @@ DAFTAR_FONT = {
         },
     },
 }
+
+DAFTAR_FONT["HINDI"] = DAFTAR_FONT["BILINGUAL"]  # backward-compatible alias
 
 # Khusus 9:16 (Vertikal)
 ASS_ALIGN_916 = 2
@@ -456,7 +458,7 @@ def _build_parser() -> argparse.ArgumentParser:
     p.add_argument(
         "--font-style",
         default=GAYA_FONT_AKTIF,
-        choices=["DEFAULT", "STORYTELLER", "HORMOZI", "CINEMATIC", "HINDI"],
+        choices=["DEFAULT", "STORYTELLER", "HORMOZI", "CINEMATIC", "BILINGUAL", "HINDI"],
         help="Font style preset",
     )
     p.add_argument(
@@ -736,7 +738,7 @@ def _build_parser() -> argparse.ArgumentParser:
     )
     vo_group.add_argument(
         "--voiceover-lang",
-        choices=["id", "en"],
+        choices=["id", "en", "hi"],
         default="en",
         help="Language for the commentary script generation.",
     )

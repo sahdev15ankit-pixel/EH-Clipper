@@ -721,7 +721,7 @@ Open source. Feel free to use, modify, and distribute.
 
 ---
 ## In-house changes (Evank / Nali)
-- `--font-style HINDI`: Poppins (Devanagari + Latin) so Hindi subtitles render instead of showing boxes.
+- `--font-style BILINGUAL`: Poppins (Devanagari + Latin) so Hindi subtitles render instead of showing boxes.
 - `--whisper-language hi|en`: force transcription language (default auto-detect).
 - Transcript cache: re-running the same video skips Whisper (`<video>.transcript.*.json` next to the download).
 - `notebooks/inhouse_colab.ipynb`: Colab runner with the T4/CUDA/numpy compatibility fixes baked in.
