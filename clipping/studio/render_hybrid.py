@@ -119,7 +119,7 @@ def buat_video_hybrid(
     detector = None
     if cfg.face_detector == "yolo":
         if not os.path.exists(cfg.file_yolo_model):
-            print(f"   📥 Mendownload YOLOv8 Face Model ({cfg.yolo_size})...")
+            print(f"   📥 Downloading YOLOv8 Face Model ({cfg.yolo_size})...")
             import urllib.request
 
             urllib.request.urlretrieve(cfg.url_yolo_model, cfg.file_yolo_model)
@@ -170,7 +170,7 @@ def buat_video_hybrid(
     if skip_tracking:
         print(f"🧠 {label} - Static Crop aktif (tanpa face tracking)...", flush=True)
     else:
-        print(f"🧠 {label} - Analisa wajah dimulai...", flush=True)
+        print(f"🧠 {label} - Face analysis started...", flush=True)
 
     while current_time <= duration and not skip_tracking:
         cap.set(cv2.CAP_PROP_POS_MSEC, (start_clip + current_time) * 1000)
@@ -226,7 +226,7 @@ def buat_video_hybrid(
             min(100, int((current_time / duration) * 100)) if duration > 0 else 100
         )
         if detect_percent != last_detect_percent:
-            print(f"⏳ {label} - Analisa wajah: {detect_percent:3d}%", flush=True)
+            print(f"⏳ {label} - Face analysis: {detect_percent:3d}%", flush=True)
             last_detect_percent = detect_percent
 
         current_time += STEP_DETEKSI
@@ -519,9 +519,9 @@ def buat_video_hybrid(
         return_code = writer.wait()
 
         if return_code != 0:
-            raise RuntimeError(f"FFmpeg writer gagal: {stderr_data[-1000:]}")
+            raise RuntimeError(f"FFmpeg writer failed: {stderr_data[-1000:]}")
 
-        print(f"✅ {label} selesai.", flush=True)
+        print(f"✅ {label} done.", flush=True)
 
     finally:
         cap.release()

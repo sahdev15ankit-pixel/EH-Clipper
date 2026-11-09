@@ -128,13 +128,13 @@ def main():
 
         run_story_pipeline(cfg)
 
-        print("\n✅ Selesai! Semua story clips telah dirender.")
+        print("\n✅ Done! All story clips have been rendered.")
         return
 
     # ── Normal Auto-Clip Mode ────────────────────────────────────────
     if not cfg.api_key_gemini:
-        print("❌ ERROR: GOOGLE_API_KEY environment variable tidak ditemukan.")
-        print("   Set via: export GOOGLE_API_KEY='your-key' atau buat file .env")
+        print("❌ ERROR: GOOGLE_API_KEY environment variable not found.")
+        print("   Set via: export GOOGLE_API_KEY='your-key' or create a .env file")
         sys.exit(1)
 
     url_list = getattr(cfg, "url_list", [cfg.url_youtube] if isinstance(cfg.url_youtube, str) else cfg.url_youtube)
@@ -143,7 +143,7 @@ def main():
     # ── Single URL Mode (backward-compatible) ────────────────────────
     if not is_batch:
         _run_single_url(cfg, url_list[0], version)
-        print("\n✅ Selesai! Semua klip telah dirender.")
+        print("\n✅ Done! All clips have been rendered.")
         return
 
     # ── Batch Multi-URL Mode ─────────────────────────────────────────
@@ -221,7 +221,7 @@ def main():
                 "duration_seconds": round(elapsed, 1),
                 "manifest": manifest,
             })
-            print(f"\n✅ [{idx + 1}/{total}] Selesai — {clip_count} clip(s) rendered in {elapsed:.0f}s")
+            print(f"\n✅ [{idx + 1}/{total}] Done — {clip_count} clip(s) rendered in {elapsed:.0f}s")
 
         except Exception as e:
             elapsed = time.time() - t_start
@@ -238,7 +238,7 @@ def main():
                 "manifest": None,
             })
             print(f"\n❌ [{idx + 1}/{total}] GAGAL — {error_msg}")
-            print(f"   ⏭️ Melanjutkan ke URL berikutnya...")
+            print(f"   ⏭️ Continuing to the next URL...")
 
     # ── Batch Summary ────────────────────────────────────────────────
     total_elapsed = time.time() - t_batch_start

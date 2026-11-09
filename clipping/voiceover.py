@@ -224,7 +224,7 @@ def generate_commentary_script(transcript_snippet: str, cfg, style="analysis", l
     
     api_key = cfg.api_key_gemini
     if not api_key:
-        raise ValueError("GOOGLE_API_KEY tidak ditemukan di environment atau config.")
+        raise ValueError("GOOGLE_API_KEY not found in environment or config.")
 
     client = genai.Client(api_key=api_key)
     prompt = get_commentary_prompt(transcript_snippet, style, language, length)

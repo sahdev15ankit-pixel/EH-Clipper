@@ -56,7 +56,7 @@ def _run_pipeline_sync(job_id: str, payload: dict) -> None:
         if not cfg.api_key_gemini:
             store.set_error(
                 job_id,
-                "GOOGLE_API_KEY tidak ditemukan. Set via Settings atau .env file.",
+                "GOOGLE_API_KEY not found. Set via Settings or the .env file.",
             )
             return
 
@@ -67,7 +67,7 @@ def _run_pipeline_sync(job_id: str, payload: dict) -> None:
             step="download",
             step_number=1,
             total_steps=7,
-            message="Mengunduh video...",
+            message="Downloading video...",
             percent=5.0,
         )
 
@@ -81,7 +81,7 @@ def _run_pipeline_sync(job_id: str, payload: dict) -> None:
             project_root = os.path.abspath(os.path.join(os.path.dirname(__file__), "..", ".."))
             upload_path = os.path.join(project_root, "uploads", payload["upload_filename"])
             if not os.path.exists(upload_path):
-                store.set_error(job_id, f"File upload tidak ditemukan: {payload['upload_filename']}")
+                store.set_error(job_id, f"Uploaded file not found: {payload['upload_filename']}")
                 return
             cfg.file_video_asli = upload_path
             store.update_progress(
@@ -100,11 +100,11 @@ def _run_pipeline_sync(job_id: str, payload: dict) -> None:
                         step="download",
                         step_number=1,
                         total_steps=7,
-                        message="Bypass download: menggunakan video lama.",
+                        message="Bypass download: using the previous video.",
                         percent=14.0,
                     )
                 else:
-                    store.set_error(job_id, "Video asli tidak ditemukan di Job ID tersebut. File mungkin sudah terhapus.")
+                    store.set_error(job_id, "Original video not found for that Job ID. The file may have been deleted.")
                     return
             else:
                 engine.download_video(
@@ -119,7 +119,7 @@ def _run_pipeline_sync(job_id: str, payload: dict) -> None:
                     step="download",
                     step_number=1,
                     total_steps=7,
-                    message="Video berhasil diunduh.",
+                    message="Video downloaded.",
                     percent=14.0,
                 )
 
@@ -171,7 +171,7 @@ def _run_pipeline_sync(job_id: str, payload: dict) -> None:
             step="analyze",
             step_number=3,
             total_steps=7,
-            message="Menganalisis dengan AI...",
+            message="Analyzing with AI...",
             percent=36.0,
         )
 
@@ -192,7 +192,7 @@ def _run_pipeline_sync(job_id: str, payload: dict) -> None:
             step="analyze",
             step_number=3,
             total_steps=7,
-            message=f"AI menemukan {len(hasil_json)} klip viral.",
+            message=f"AI found {len(hasil_json)} viral clips.",
             percent=50.0,
         )
 
@@ -226,7 +226,7 @@ def _run_pipeline_sync(job_id: str, payload: dict) -> None:
                     step="diarization",
                     step_number=5,
                     total_steps=7,
-                    message="Menjalankan speaker diarization...",
+                    message="Running speaker diarization...",
                     percent=56.0,
                 )
                 audio_path = cfg.file_video_asli.replace(".mp4", "_audio.wav")
@@ -268,7 +268,7 @@ def _run_pipeline_sync(job_id: str, payload: dict) -> None:
             step="render",
             step_number=6,
             total_steps=7,
-            message="Menyiapkan rendering...",
+            message="Preparing rendering...",
             percent=60.0,
         )
 
@@ -309,7 +309,7 @@ def _run_pipeline_sync(job_id: str, payload: dict) -> None:
                 step="render",
                 step_number=6,
                 total_steps=7,
-                message=f"Merender klip {clip_num}/{total_clips}...",
+                message=f"Rendering clip {clip_num}/{total_clips}...",
                 percent=60.0 + (35.0 * clip_num / total_clips),
             )
 
@@ -359,7 +359,7 @@ def _run_pipeline_sync(job_id: str, payload: dict) -> None:
             step="done",
             step_number=7,
             total_steps=7,
-            message=f"Selesai! {len(clips)} klip berhasil dirender.",
+            message=f"Done! {len(clips)} clips rendered successfully.",
             percent=100.0,
         )
 

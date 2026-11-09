@@ -112,7 +112,7 @@ def normalize_and_validate(hasil_json: list[dict]) -> list[dict]:
     semua_warning = []
     for item in hasil_json:
         if not isinstance(item, dict):
-            print(f"⚠️ Melewati item metadata yang tidak valid (bukan dict): {type(item)}")
+            print(f"⚠️ Skipping invalid metadata item (not a dict): {type(item)}")
             continue
 
         # 1. FLATTENING: If model put everything in a "metadata" key, bring it up
@@ -200,7 +200,7 @@ def normalize_and_validate(hasil_json: list[dict]) -> list[dict]:
         if not item["description_context"]:
             warning.append("description_context kosong")
         if len(item["keyword_tags"]) < 5:
-            warning.append("keyword_tags terlalu sedikit")
+            warning.append("keyword_tags too few")
 
         if not item["tiktok_title_id"]:
             warning.append("tiktok_title_id kosong")
@@ -212,7 +212,7 @@ def normalize_and_validate(hasil_json: list[dict]) -> list[dict]:
         # Safety: warn if description is too short (looks like spam/lazy reupload)
         yt_desc = item.get("youtube_description_final", "")
         if len(yt_desc) < 30:
-            warning.append("youtube_description terlalu pendek (< 30 karakter) — terlihat seperti spam")
+            warning.append("youtube_description too short (< 30 characters) — looks like spam")
 
         if _looks_indonesian(item["title_inggris"]):
             warning.append("title_inggris terdeteksi bukan English penuh")
@@ -259,8 +259,8 @@ def normalize_and_validate(hasil_json: list[dict]) -> list[dict]:
 
 def print_preview(hasil_json: list[dict]) -> None:
     """Print a human-readable metadata preview to stdout."""
-    print("✅ Preview metadata siap.")
-    print("Field tambahan yang dibuat:")
+    print("✅ Metadata preview ready.")
+    print("Extra fields created:")
     print("- youtube_title_final")
     print("- youtube_description_final")
     print("- youtube_tags_final")
@@ -269,7 +269,7 @@ def print_preview(hasil_json: list[dict]) -> None:
     print("- tiktok_caption_id_final")
     print()
 
-    print("===== PREVIEW DETAIL PER KLIP =====")
+    print("===== PREVIEW DETAIL PER CLIP =====")
     for item in hasil_json:
         klasifikasi = item.get("klasifikasi_akun", {})
         print(f"\n--- Rank {item['rank']} (Viral Score: {item.get('viral_score', '?')}) ---")
@@ -291,4 +291,4 @@ def save_metadata_preview(hasil_json: list[dict], path: str = "metadata_preview.
     """Save normalized metadata to a JSON file."""
     with open(path, "w", encoding="utf-8") as f:
         json.dump(hasil_json, f, ensure_ascii=False, indent=2)
-    print(f"\n💾 Disimpan ke {path}")
+    print(f"\n💾 Saved to {path}")

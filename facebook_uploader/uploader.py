@@ -50,13 +50,13 @@ def get_meta_config() -> dict:
 
     if not page_id:
         raise RuntimeError(
-            "META_PAGE_ID belum di-set. "
-            "Tambahkan ke .env atau environment variable."
+            "META_PAGE_ID is not set. "
+            "Add it to .env or as an environment variable."
         )
     if not token:
         raise RuntimeError(
-            "META_PAGE_ACCESS_TOKEN belum di-set. "
-            "Tambahkan ke .env atau environment variable."
+            "META_PAGE_ACCESS_TOKEN is not set. "
+            "Add it to .env or as an environment variable."
         )
 
     return {
@@ -109,7 +109,7 @@ def get_latest_future_schedule(config: dict, tz_name: str = "Asia/Makassar") -> 
         "limit": "100",
     }
 
-    print("🔎 Mengecek scheduled posts di Facebook Page...")
+    print("🔎 Checking scheduled posts on the Facebook Page...")
 
     while url:
         resp = requests.get(url, headers=_auth_headers(config), params=params, timeout=30)
@@ -147,9 +147,9 @@ def get_latest_future_schedule(config: dict, tz_name: str = "Asia/Makassar") -> 
             break
 
     if latest_dt:
-        print(f"✅ Scheduled terakhir ditemukan: {latest_dt.strftime('%Y-%m-%d %H:%M:%S %Z')}")
+        print(f"✅ Latest scheduled post found: {latest_dt.strftime('%Y-%m-%d %H:%M:%S %Z')}")
     else:
-        print("ℹ️ Belum ada post terjadwal di masa depan.")
+        print("ℹ️ No scheduled posts in the future yet.")
 
     return latest_dt
 
@@ -255,7 +255,7 @@ def poll_reel_status(
             last_data = data
 
         except Exception as exc:
-            print(f"   ⚠️ Gagal mengecek status video: {exc}")
+            print(f"   ⚠️ Failed to check video status: {exc}")
 
             if elapsed >= timeout_seconds:
                 return {
@@ -328,7 +328,7 @@ def poll_reel_status(
 
         if elapsed >= timeout_seconds:
             print(
-                f"   ℹ️ Publishing belum selesai setelah {timeout_seconds} detik."
+                f"   ℹ️ Publishing not finished after {timeout_seconds} seconds."
             )
 
             return {
@@ -366,7 +366,7 @@ def finish_reel(
 
     if video_state == "SCHEDULED":
         if scheduled_timestamp is None:
-            raise ValueError("scheduled_timestamp wajib diisi untuk video_state=SCHEDULED")
+            raise ValueError("scheduled_timestamp is required for video_state=SCHEDULED")
         payload["scheduled_publish_time"] = str(scheduled_timestamp)
 
     resp = requests.post(url, headers=_auth_headers(config), data=payload, timeout=60)
@@ -471,7 +471,7 @@ def refresh_existing_facebook_statuses(
         status = row.get("fb_upload_status")
 
         if video_id and status in target_statuses:
-            print(f"🔄 Mensinkronisasi status Facebook untuk Video ID {video_id} (status saat ini: {status})...")
+            print(f"🔄 Syncing Facebook status for Video ID {video_id} (current status: {status})...")
             url = f"{config['base_url']}/{video_id}"
             params = {"fields": "status"}
 
@@ -514,13 +514,13 @@ def refresh_existing_facebook_statuses(
                         print(f"   ✅ Status diperbarui: {status} ➔ {new_status}")
                         modified = True
                     else:
-                        print(f"   ℹ️ Status masih sama (video={video_status}, processing={processing_status}, publishing={publishing_status}, publish_status={publish_status})")
+                        print(f"   ℹ️ Status unchanged (video={video_status}, processing={processing_status}, publishing={publishing_status}, publish_status={publish_status})")
                         # Timestamp check ditambahkan, tandai manifest sebagai modified
                         modified = True
                 else:
-                    print(f"   ⚠️ Request status gagal HTTP {resp.status_code}")
+                    print(f"   ⚠️ Status request failed, HTTP {resp.status_code}")
             except Exception as e:
-                print(f"   ⚠️ Gagal mensinkronisasi status untuk {video_id}: {e}")
+                print(f"   ⚠️ Failed to sync status for {video_id}: {e}")
 
     if modified:
         save_json_file(updated_manifest_file, manifest_rows)
@@ -588,11 +588,11 @@ def upload_manifest_to_facebook(
     
     if str(page_info.get("id")) != str(config["page_id"]):
         raise RuntimeError(
-            "META_PAGE_ACCESS_TOKEN tidak cocok dengan META_PAGE_ID. "
+            "META_PAGE_ACCESS_TOKEN does not match META_PAGE_ID. "
             f"Token mengarah ke ID {page_info.get('id')}, "
-            f"sedangkan konfigurasi menggunakan {config['page_id']}."
+            f"while the configuration uses {config['page_id']}."
         )
-    print(f"✅ Token valid untuk Page: {page_info.get('name')} (ID: {page_info.get('id')})")
+    print(f"✅ Token valid for Page: {page_info.get('name')} (ID: {page_info.get('id')})")
 
     # --- Load Manifest ---
     source_manifest_file = manifest_file
@@ -602,13 +602,13 @@ def upload_manifest_to_facebook(
         and os.path.getsize(updated_manifest_file) > 0
     ):
         source_manifest_file = updated_manifest_file
-        print(f"📂 Menggunakan manifest Facebook sebelumnya: {source_manifest_file}")
+        print(f"📂 Using previous Facebook manifest: {source_manifest_file}")
     else:
-        print(f"📂 Menggunakan manifest awal: {source_manifest_file}")
+        print(f"📂 Using initial manifest: {source_manifest_file}")
 
     render_manifest = load_json_file(source_manifest_file, default=[])
     if not render_manifest:
-        print(f"⚠️ {source_manifest_file} kosong / tidak ditemukan.")
+        print(f"⚠️ {source_manifest_file} empty / not found.")
         return []
 
     # Sync existing pending / scheduled statuses before processing
@@ -616,7 +616,7 @@ def upload_manifest_to_facebook(
 
     candidates = get_upload_candidates(render_manifest)
     if not candidates:
-        print("⚠️ Tidak ada item yang siap diupload.")
+        print("⚠️ No items ready to upload.")
         return []
 
     # Filter out already-uploaded items
@@ -627,7 +627,7 @@ def upload_manifest_to_facebook(
 
         if fb_video_id:
             print(
-                f"⏭️ Skip Rank {item.get('rank')} karena sudah memiliki "
+                f"⏭️ Skipping Rank {item.get('rank')} because it already has "
                 f"Facebook Video ID: {fb_video_id} (status={fb_status or 'unknown'})"
             )
             continue
@@ -636,15 +636,15 @@ def upload_manifest_to_facebook(
     # --- Rate Limit Check (30 Reels / 24 jam rolling window) ---
     recent_count = count_recent_uploads(render_manifest, hours=24)
     remaining_quota = max(0, META_REEL_RATE_LIMIT_24H - recent_count)
-    print(f"\n📊 Rate Limit: {recent_count}/{META_REEL_RATE_LIMIT_24H} Reels sudah diupload dalam 24 jam terakhir.")
+    print(f"\n📊 Rate Limit: {recent_count}/{META_REEL_RATE_LIMIT_24H} Reels already uploaded in the last 24 hours.")
 
     if remaining_quota == 0:
-        print("🛑 Rate limit tercapai! Tidak bisa upload Reel lagi dalam 24 jam ini.")
+        print("🛑 Rate limit reached! Cannot upload more Reels in this 24h window.")
         return []
 
     if len(pending_items) > remaining_quota:
         print(
-            f"⚠️ Hanya {remaining_quota} dari {len(pending_items)} clip yang akan diupload "
+            f"⚠️ Only {remaining_quota} of {len(pending_items)} clips will be uploaded "
             f"(sisa kuota 24 jam)."
         )
         pending_items = pending_items[:remaining_quota]
@@ -654,7 +654,7 @@ def upload_manifest_to_facebook(
         print("🧪 Mode test aktif: hanya upload 1 item pertama.")
 
     if not pending_items:
-        print("⚠️ Semua item success sudah pernah diupload ke Facebook.")
+        print("⚠️ All successful items have already been uploaded to Facebook.")
         return []
 
     # --- Determine Schedule ---
@@ -669,7 +669,7 @@ def upload_manifest_to_facebook(
     upload_results = []
     updated_manifest = deepcopy(render_manifest)
 
-    print(f"\n🚀 Mulai upload {len(pending_items)} clip ke Facebook Page...")
+    print(f"\n🚀 Starting upload of {len(pending_items)} clips to the Facebook Page...")
     print(f"   Interval antar video: {interval_hours} jam")
     print(f"   Timezone: {tz_name}")
 
@@ -708,8 +708,8 @@ def upload_manifest_to_facebook(
             # Jika terlalu dekat (< 10 menit), bump ke minimum
             if scheduled_at < min_schedule:
                 print(
-                    f"   ⚠️ Jadwal {scheduled_at.strftime('%H:%M:%S')} terlalu dekat "
-                    f"(min {META_SCHEDULE_MIN_MINUTES} menit). Di-bump ke {min_schedule.strftime('%H:%M:%S')}."
+                    f"   ⚠️ Schedule {scheduled_at.strftime('%H:%M:%S')} is too close "
+                    f"(min {META_SCHEDULE_MIN_MINUTES} minutes). Bumped to {min_schedule.strftime('%H:%M:%S')}."
                 )
                 scheduled_at = min_schedule
 
@@ -728,7 +728,7 @@ def upload_manifest_to_facebook(
 
         print(f"\n{'=' * 60}")
         print(f"=== Clip {idx + 1}/{len(pending_items)} — Rank {rank} ===")
-        print(f"Judul  : {title}")
+        print(f"Title  : {title}")
         print(f"Video  : {os.path.basename(video_path)}")
         print(f"Mode   : {mode_label}")
         print(f"{'=' * 60}")
@@ -737,7 +737,7 @@ def upload_manifest_to_facebook(
         post_id = None
         try:
             # Step 1: Create Reel session
-            print("   📝 Membuat sesi upload Reel...")
+            print("   📝 Creating Reel upload session...")
             session = create_reel_session(config)
             video_id = session["video_id"]
             upload_url = session["upload_url"]
@@ -746,7 +746,7 @@ def upload_manifest_to_facebook(
             # Step 2: Upload binary
             print(f"   ⬆️ Uploading: {os.path.basename(video_path)} ({os.path.getsize(video_path) / 1024 / 1024:.1f} MB)...")
             upload_reel_binary(upload_url, video_path, config["access_token"])
-            print("   ✅ Upload binary berhasil.")
+            print("   ✅ Binary upload succeeded.")
 
             # Step 3: Finish — publish or schedule (Meta needs finish_reel before starting video processing)
             print(f"   🎬 Finishing reel ({video_state})...")
@@ -759,14 +759,14 @@ def upload_manifest_to_facebook(
                 scheduled_timestamp=scheduled_timestamp,
             )
             post_id = finish_result.get("post_id")
-            print(f"   ✅ Reel {video_state} berhasil didaftarkan!")
+            print(f"   ✅ Reel {video_state} registered successfully!")
             if post_id:
                 print(f"   📌 Post ID: {post_id}")
 
             # Step 4: Poll status — unified for PUBLISHED & SCHEDULED
             #   Meta returns publishing_phase.status == "complete" for both.
             #   publish_status differentiates: "published" vs "scheduled".
-            print("   ⏳ Menunggu publishing phase selesai...")
+            print("   ⏳ Waiting for the publishing phase to finish...")
             status_result = poll_reel_status(
                 config=config,
                 video_id=video_id,
@@ -825,15 +825,15 @@ def upload_manifest_to_facebook(
             elif final_status == "scheduled":
                 sched_str = scheduled_at.strftime('%Y-%m-%d %H:%M:%S %Z') if scheduled_at else '-'
                 print(
-                    f"   ✅ Reel berhasil dijadwalkan untuk {sched_str}. Video ID: {video_id}"
+                    f"   ✅ Reel scheduled for {sched_str}. Video ID: {video_id}"
                 )
             elif final_status == "pending":
                 print(
-                    f"   ⏳ Reel diterima Meta, menunggu publishing selesai. Video ID: {video_id}"
+                    f"   ⏳ Reel accepted by Meta, waiting for publishing to finish. Video ID: {video_id}"
                 )
             else:
                 print(
-                    f"   ⚠️ Reel diterima Meta dengan status '{final_status}'. Video ID: {video_id}"
+                    f"   ⚠️ Reel accepted by Meta with status '{final_status}'. Video ID: {video_id}"
                 )
 
         except Exception as e:
@@ -852,13 +852,13 @@ def upload_manifest_to_facebook(
                 "mode": video_state,
                 "error": err,
             })
-            print(f"   ❌ Upload gagal untuk Rank {rank}: {err}")
+            print(f"   ❌ Upload failed for Rank {rank}: {err}")
 
             # STOP batch on failure — do not continue to next clip
             if video_state == "SCHEDULED":
-                print("   🛑 Batch dihentikan karena SCHEDULED gagal (tidak fallback ke PUBLISHED).")
+                print("   🛑 Batch stopped because SCHEDULED failed (no fallback to PUBLISHED).")
             else:
-                print("   🛑 Batch dihentikan karena upload gagal.")
+                print("   🛑 Batch stopped because upload failed.")
             break
 
         # Incremental save after each clip
@@ -869,7 +869,7 @@ def upload_manifest_to_facebook(
     save_json_file(result_file, upload_results)
     save_json_file(updated_manifest_file, updated_manifest)
 
-    print(f"\n💾 Hasil upload disimpan ke: {result_file}")
+    print(f"\n💾 Upload results saved to: {result_file}")
     print(f"💾 Manifest terupdate disimpan ke: {updated_manifest_file}")
 
     return upload_results

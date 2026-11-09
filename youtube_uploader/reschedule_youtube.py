@@ -96,7 +96,7 @@ def get_uploads_playlist_id(youtube):
 
     items = resp.get("items", [])
     if not items:
-        raise RuntimeError("Channel milik akun ini tidak ditemukan.")
+        raise RuntimeError("Channel for this account not found.")
 
     uploads_id = (
         items[0]
@@ -106,7 +106,7 @@ def get_uploads_playlist_id(youtube):
     )
 
     if not uploads_id:
-        raise RuntimeError("Uploads playlist tidak ditemukan.")
+        raise RuntimeError("Uploads playlist not found.")
 
     return uploads_id
 
@@ -305,16 +305,16 @@ def main():
     args = build_parser().parse_args(sys.argv[1:])
 
     if not os.path.exists(args.token_file):
-        print(f"❌ Token tidak ditemukan: {args.token_file}")
+        print(f"❌ Token not found: {args.token_file}")
         sys.exit(1)
 
     if args.interval_hours <= 0:
-        print("❌ --interval-hours harus lebih dari 0.")
+        print("❌ --interval-hours must be greater than 0.")
         sys.exit(1)
 
     youtube = get_youtube_service(args.token_file)
 
-    print("🔎 Mengambil video yang masih Scheduled...")
+    print("🔎 Fetching videos that are still Scheduled...")
     scheduled = list_scheduled_videos(
         youtube=youtube,
         tz_name=args.tz_name,
@@ -322,7 +322,7 @@ def main():
     )
 
     if not scheduled:
-        print("ℹ️ Tidak ada video Scheduled/Private di masa depan.")
+        print("ℹ️ No Scheduled/Private videos in the future.")
         return
 
     new_times = build_new_schedule(
@@ -350,19 +350,19 @@ def main():
     ]
 
     if unsafe:
-        print("❌ Ada jadwal baru yang terlalu dekat atau sudah lewat.")
-        print("   Gunakan --start-local yang lebih jauh di masa depan.")
+        print("❌ Some new schedules are too close or already in the past.")
+        print("   Use a --start-local further in the future.")
         print_plan(unsafe, args.tz_name)
         sys.exit(1)
 
     print_plan(rows, args.tz_name)
 
     if not args.apply:
-        print("\n🧪 DRY-RUN saja. Belum ada perubahan di YouTube.")
-        print("   Jalankan ulang dengan --apply untuk benar-benar reschedule.")
+        print("\n🧪 DRY-RUN only. No changes made on YouTube yet.")
+        print("   Re-run with --apply to actually reschedule.")
         return
 
-    print("\n🚀 Mulai update jadwal di YouTube...")
+    print("\n🚀 Starting schedule update on YouTube...")
 
     results = []
 
@@ -385,7 +385,7 @@ def main():
         except Exception as e:
             err = format_http_error(e) if isinstance(e, HttpError) else str(e)
 
-            print(f"❌ Gagal update {row['video_id']}: {err}")
+            print(f"❌ Failed update {row['video_id']}: {err}")
 
             results.append({
                 "video_id": row["video_id"],
@@ -413,7 +413,7 @@ def main():
         tz_name=args.tz_name,
     )
 
-    print("\n✅ Selesai.")
+    print("\n✅ Done.")
 
 
 if __name__ == "__main__":

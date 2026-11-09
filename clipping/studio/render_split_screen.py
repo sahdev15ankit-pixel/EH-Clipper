@@ -117,7 +117,7 @@ def buat_video_split_screen(
     detector = None
     if cfg.face_detector == "yolo":
         if not os.path.exists(cfg.file_yolo_model):
-            print(f"   📥 Mendownload YOLOv8 Face Model ({cfg.yolo_size})...")
+            print(f"   📥 Downloading YOLOv8 Face Model ({cfg.yolo_size})...")
             import urllib.request
 
             urllib.request.urlretrieve(cfg.url_yolo_model, cfg.file_yolo_model)
@@ -212,7 +212,7 @@ def buat_video_split_screen(
     #   1 active + N faces → use speaker's last-known position to pick nearest face
     #   otherwise          → skip (ambiguous or no data)
 
-    print(f"🧠 {label} - Analisa wajah (split-screen) dimulai...", flush=True)
+    print(f"🧠 {label} - Face analysis (split-screen) started...", flush=True)
 
     all_frame_data: list[dict] = []  # [{time, face_centers, face_boxes, active_now}]
     speaker_solo_cxs: dict[str, list] = {}  # speaker → [cx, ...] from 1:1 frames
@@ -338,7 +338,7 @@ def buat_video_split_screen(
             min(100, int((current_time / duration) * 100)) if duration > 0 else 100
         )
         if detect_percent != last_detect_percent:
-            print(f"⏳ {label} - Analisa wajah: {detect_percent:3d}%", flush=True)
+            print(f"⏳ {label} - Face analysis: {detect_percent:3d}%", flush=True)
             last_detect_percent = detect_percent
 
         current_time += STEP_DETEKSI
@@ -1160,16 +1160,16 @@ def buat_video_split_screen(
             stderr_data = writer_main.stderr.read().decode("utf-8", errors="ignore")
             return_code = writer_main.wait()
             if return_code != 0:
-                raise RuntimeError(f"FFmpeg writer main gagal: {stderr_data[-1000:]}")
+                raise RuntimeError(f"FFmpeg main writer failed: {stderr_data[-1000:]}")
         
         if writer_dev:
             writer_dev.stdin.close()
             stderr_data_dev = writer_dev.stderr.read().decode("utf-8", errors="ignore")
             return_code_dev = writer_dev.wait()
             if return_code_dev != 0:
-                raise RuntimeError(f"FFmpeg writer dev gagal: {stderr_data_dev[-1000:]}")
+                raise RuntimeError(f"FFmpeg dev writer failed: {stderr_data_dev[-1000:]}")
 
-        print(f"✅ {label} selesai.", flush=True)
+        print(f"✅ {label} done.", flush=True)
 
     finally:
         cap.release()

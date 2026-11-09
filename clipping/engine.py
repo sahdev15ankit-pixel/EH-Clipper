@@ -99,8 +99,8 @@ def _download_gdrive(url: str, output_path: str) -> None:
     file_id = _extract_gdrive_file_id(url)
     if not file_id:
         raise RuntimeError(
-            f"Tidak dapat mengekstrak file ID dari URL Google Drive: {url}\n"
-            "      Format yang didukung:\n"
+            f"Could not extract file ID from Google Drive URL: {url}\n"
+            "      Supported formats:\n"
             "        • https://drive.google.com/file/d/FILE_ID/view\n"
             "        • https://drive.google.com/open?id=FILE_ID"
         )
@@ -141,7 +141,7 @@ def _ydl_progress_hook(d: dict) -> None:
                 end="", flush=True,
             )
     elif status == "finished":
-        print(flush=True)  # tutup baris bar untuk stream ini
+        print(flush=True)  # close the bar line for this stream
 
 
 def _apply_cookies(opts: dict, cookies: str | None) -> None:
@@ -178,7 +178,7 @@ def download_video(
     platform_label = _PLATFORM_LABELS.get(source_platform, source_platform)
     uses_youtube_format = source_platform == "youtube"
 
-    print(f"[1/3] Mendownload video dari {platform_label}...")
+    print(f"[1/3] Downloading video from {platform_label}...")
     if download_source_height == "max":
         print("      🎯 Source quality: highest available", flush=True)
     else:
@@ -195,9 +195,9 @@ def download_video(
         _download_gdrive(url, output_path)
         if not os.path.exists(output_path):
             raise RuntimeError(
-                f"❌ Download dari Google Drive gagal — file tidak ditemukan di {output_path}"
+                f"❌ Download from Google Drive failed — file not found at {output_path}"
             )
-        print(f"      ✅ Video berhasil didownload dari Google Drive.", flush=True)
+        print(f"      ✅ Video downloaded from Google Drive.", flush=True)
         return
 
     # --- Build yt-dlp options per platform ---
@@ -228,7 +228,7 @@ def download_video(
 
     # --- Subtitle download — only supported for YouTube ---
     if use_dlp_subs and uses_youtube_format:
-        print("      Mencoba mencari subtitle bahasa otomatis (en / id)...")
+        print("      Looking for automatic subtitles (en / id)...")
         import glob
 
         for lang in ["en", "id"]:
@@ -247,12 +247,12 @@ def download_video(
 
                 # Cek apakah json3 untuk bahasa ini benar-benar terdownload
                 if glob.glob(output_path.replace(".mp4", f".*.json3")):
-                    print(f"      ✅ Subtitle '{lang}' ditemukan. Melanjutkan ke video...")
+                    print(f"      ✅ Subtitle '{lang}' found. Continuing to video...")
                     break
             except Exception as e:
-                print(f"      ⚠️ Gagal menarik subtitle '{lang}' ({e}). Mencoba opsi selanjutnya...")
+                print(f"      ⚠️ Failed to fetch subtitle '{lang}' ({e}). Trying next option...")
     elif use_dlp_subs and not uses_youtube_format:
-        print(f"      ℹ️ {platform_label} tidak menyediakan subtitle otomatis. Whisper akan digunakan.")
+        print(f"      ℹ️ {platform_label} does not provide automatic subtitles. Whisper will be used.")
 
     # Jalankan download video terpisah dari urusan subtitle
     with YoutubeDL(ydl_opts) as ydl:
@@ -261,17 +261,17 @@ def download_video(
             info = ydl.extract_info(url, download=False)
             best_h = info.get("height", "unknown")
             v_codec = info.get("vcodec", "unknown")
-            print(f"      ✅ Mendownload: {best_h}p (Codec: {v_codec})", flush=True)
+            print(f"      ✅ Downloading: {best_h}p (Codec: {v_codec})", flush=True)
         except Exception as e:
-            print(f"      ⚠️ Gagal mengecek info detail: {e}", flush=True)
+            print(f"      ⚠️ Failed to check detailed info: {e}", flush=True)
 
         ydl.download([url])
 
     # --- Post-download verification ---
     if not os.path.exists(output_path):
         raise RuntimeError(
-            f"❌ Download dari {platform_label} gagal — file video tidak ditemukan di {output_path}.\n"
-            "      Pastikan URL valid dan bisa diakses secara publik."
+            f"❌ Download from {platform_label} failed — video file not found at {output_path}.\n"
+            "      Make sure the URL is valid and publicly accessible."
         )
 
 
@@ -286,7 +286,7 @@ def parse_youtube_json3_subs(json_path: str, max_words_per_subtitle: int = 5) ->
     """
     import json
 
-    print("[2/3] Memproses subtitle JSON3 dari YouTube...")
+    print("[2/3] Processing YouTube JSON3 subtitles...")
     transkrip_lengkap = ""
     data_segmen = []
 
@@ -386,7 +386,7 @@ def parse_youtube_json3_subs(json_path: str, max_words_per_subtitle: int = 5) ->
         return transkrip_lengkap, data_segmen
 
     except Exception as e:
-        print(f"⚠️ Gagal memparsing JSON3: {e}")
+        print(f"⚠️ Failed to parse JSON3: {e}")
         return "", []
 
 
@@ -417,7 +417,7 @@ def transcribe_video(
     data_segmen : list[dict]
         Word-level segments grouped by *max_words_per_subtitle*.
     """
-    print("[2/3] Memulai transkripsi dengan Faster-Whisper (Level Per-Kata)...")
+    print("[2/3] Starting transcription with Faster-Whisper (word level)...")
 
     # Transcript cache: re-runs on the same video skip Whisper entirely.
     import json as _json
@@ -426,10 +426,10 @@ def transcribe_video(
         try:
             with open(cache_path, encoding="utf-8") as f:
                 cached = _json.load(f)
-            print(f"      ♻️ Transkrip cache ditemukan, melewati Whisper: {cache_path}", flush=True)
+            print(f"      ♻️ Cached transcript found, skipping Whisper: {cache_path}", flush=True)
             return cached["transkrip"], cached["segmen"]
         except Exception as e:
-            print(f"      ⚠️ Cache transkrip rusak ({e}), transkripsi ulang.", flush=True)
+            print(f"      ⚠️ Transcript cache is corrupt ({e}), re-transcribing.", flush=True)
 
     # Langkah-langkah ini berjalan tanpa output di dalam faster-whisper sebelum
     # segmen pertama dihasilkan, jadi kita umumkan tiap fase — kalau tidak, run
@@ -437,18 +437,18 @@ def transcribe_video(
     if whisper_model_instance is not None:
         model = whisper_model_instance
         print(
-            f"      ♻️ Menggunakan model Whisper yang sudah di-load (batch mode)",
+            f"      ♻️ Using the already-loaded Whisper model (batch mode)",
             flush=True,
         )
     else:
         print(
-            f"      ⏳ Memuat model Whisper '{model_size}' ({device})"
-            " — unduhan pertama kali bisa memakan waktu...",
+            f"      ⏳ Loading Whisper model '{model_size}' ({device})"
+            " — the first download may take a while...",
             flush=True,
         )
         model = WhisperModel(model_size, device=device, compute_type=compute_type)
 
-    print("      ⏳ Mendekode audio & mengekstrak fitur (belum ada output)...", flush=True)
+    print("      ⏳ Decoding audio & extracting features (no output yet)...", flush=True)
     segments, info = model.transcribe(
         video_path, beam_size=5, word_timestamps=True, language=language
     )
@@ -501,7 +501,7 @@ def transcribe_video(
         with open(cache_path, "w", encoding="utf-8") as f:
             _json.dump({"transkrip": transkrip_lengkap, "segmen": data_segmen}, f, ensure_ascii=False)
     except Exception as e:
-        print(f"      ⚠️ Gagal menyimpan cache transkrip: {e}", flush=True)
+        print(f"      ⚠️ Failed to save transcript cache: {e}", flush=True)
     return transkrip_lengkap, data_segmen
 
 
@@ -592,7 +592,7 @@ def _generate_json_with_retry(client, model, fallback_model, contents, config):
 
             text = getattr(response, "text", None)
             if not text or not text.strip():
-                raise ValueError("Gemini mengembalikan response.text kosong.")
+                raise ValueError("Gemini returned an empty response.text.")
 
             return json.loads(text)
 
@@ -610,12 +610,12 @@ def _generate_json_with_retry(client, model, fallback_model, contents, config):
                 break
 
             wait_seconds = INITIAL_WAIT_SECONDS + ((attempt - 1) * WAIT_INCREMENT_SECONDS)
-            print(f"[Gemini] Retry lagi dalam {wait_seconds} detik...")
+            print(f"[Gemini] Retrying in {wait_seconds} seconds...")
             time.sleep(wait_seconds)
 
-    print(f"[Gemini] Percobaan dengan model utama ({model}) gagal.")
+    print(f"[Gemini] Attempt with primary model ({model}) failed.")
     if fallback_model:
-        print(f"[Gemini] Mencoba satu kali lagi dengan fallback model ({fallback_model})...")
+        print(f"[Gemini] Trying once more with fallback model ({fallback_model})...")
         try:
             response = client.models.generate_content(
                 model=fallback_model,
@@ -624,19 +624,19 @@ def _generate_json_with_retry(client, model, fallback_model, contents, config):
             )
             text = getattr(response, "text", None)
             if not text or not text.strip():
-                raise ValueError("Gemini fallback mengembalikan response.text kosong.")
+                raise ValueError("Gemini fallback returned an empty response.text.")
 
             return json.loads(text)
         except Exception as exc_fallback:
-            print(f"[Gemini] Fallback model gagal | error={exc_fallback}")
+            print(f"[Gemini] Fallback model failed | error={exc_fallback}")
             raise RuntimeError(
-                f"Gagal memanggil Gemini utama & fallback. "
+                f"Failed to call Gemini primary & fallback. "
                 f"Laporan Utama status={status_code}, error={last_exc} | "
                 f"Laporan Fallback error={exc_fallback}"
             ) from exc_fallback
 
     raise RuntimeError(
-        f"Gagal memanggil Gemini setelah {MAX_ATTEMPTS} percobaan. Error terakhir: {last_exc}"
+        f"Failed to call Gemini after {MAX_ATTEMPTS} attempts. Last error: {last_exc}"
     ) from last_exc
 
 
@@ -982,10 +982,10 @@ def analyze_with_nvidia(transkrip_lengkap: str, cfg) -> list[dict]:
     """Analyze transcript using NVIDIA NIM API (OpenAI compatible)."""
     from openai import OpenAI
     
-    print(f"[3/3] Menganalisis Top {cfg.jumlah_clip} momen menggunakan NVIDIA ({cfg.nvidia_model})...")
+    print(f"[3/3] Analyzing Top {cfg.jumlah_clip} moments using NVIDIA ({cfg.nvidia_model})...")
     
     if not cfg.api_key_nvidia:
-        raise ValueError("NVIDIA_API_KEY tidak ditemukan di environment.")
+        raise ValueError("NVIDIA_API_KEY not found in environment.")
 
     client = OpenAI(
         base_url="https://integrate.api.nvidia.com/v1",
@@ -1179,7 +1179,7 @@ def analyze_with_nvidia(transkrip_lengkap: str, cfg) -> list[dict]:
     if not isinstance(hasil, list):
         if isinstance(hasil, dict):
             return [hasil]
-        raise ValueError(f"Provider NVIDIA mengembalikan format non-list/dict: {type(hasil)}")
+        raise ValueError(f"NVIDIA provider returned a non-list/dict format: {type(hasil)}")
         
     return hasil
 
@@ -1190,12 +1190,12 @@ def analyze_with_ai(transkrip_lengkap: str, cfg) -> list[dict]:
     
     if provider == "nvidia":
         if not cfg.api_key_nvidia:
-            print("⚠️ NVIDIA_API_KEY tidak ditemukan! Mencoba fallback ke Gemini...")
+            print("⚠️ NVIDIA_API_KEY not found! Trying fallback to Gemini...")
         else:
             try:
                 return analyze_with_nvidia(transkrip_lengkap, cfg)
             except Exception as e:
-                print(f"⚠️ NVIDIA API gagal: {e}. Fallback ke Gemini...")
+                print(f"⚠️ NVIDIA API failed: {e}. Falling back to Gemini...")
     
     return analyze_with_gemini(transkrip_lengkap, cfg)
 
@@ -1208,7 +1208,7 @@ def analyze_with_gemini(
     import google.genai as genai
     from google.genai import types
 
-    print(f"[3/3] Menganalisis Top {cfg.jumlah_clip} momen terbaik menggunakan Gemini...")
+    print(f"[3/3] Analyzing Top {cfg.jumlah_clip} best moments using Gemini...")
 
     prompt = get_analysis_prompt(transkrip_lengkap, cfg.jumlah_clip, cfg.durasi_hook, cfg=cfg)
 

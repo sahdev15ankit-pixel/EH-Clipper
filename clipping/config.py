@@ -556,7 +556,7 @@ def _build_parser() -> argparse.ArgumentParser:
     p.add_argument(
         "--track-lines",
         action="store_true",
-        help="Draw crosshair tracking lines extending from the face box to the boundaries",
+        help="Draw crosshair tracking lines extending from the face box to the bounfromes",
     )
     p.add_argument(
         "--static-crop",
@@ -858,23 +858,23 @@ def build_config(argv: list[str] | None = None) -> SimpleNamespace:
     # Validate watermark args
     if args.watermark:
         if not args.text and not args.image:
-            parser.error("--watermark membutuhkan --text atau --image.")
+            parser.error("--watermark requires --text or --image.")
         if not (1 <= args.opacity <= 100):
-            parser.error(f"--opacity harus antara 1-100, diberikan: {args.opacity}")
+            parser.error(f"--opacity must be between 1-100, got: {args.opacity}")
         if args.padding < 0:
-            parser.error(f"--padding tidak boleh negatif, diberikan: {args.padding}")
+            parser.error(f"--padding must not be negative, got: {args.padding}")
         if args.watermark_font_size < 0:
-            parser.error(f"--watermark-font-size tidak boleh negatif, diberikan: {args.watermark_font_size}")
+            parser.error(f"--watermark-font-size must not be negative, got: {args.watermark_font_size}")
         if not (1 <= args.watermark_scale <= 100):
-            parser.error(f"--watermark-scale harus antara 1-100, diberikan: {args.watermark_scale}")
+            parser.error(f"--watermark-scale must be between 1-100, got: {args.watermark_scale}")
         if args.image:
             if not os.path.exists(args.image):
-                parser.error(f"File watermark image tidak ditemukan: {args.image}")
+                parser.error(f"Watermark image file not found: {args.image}")
             valid_exts = (".png", ".jpg", ".jpeg", ".webp", ".bmp", ".tiff")
             if not args.image.lower().endswith(valid_exts):
                 parser.error(
-                    f"Format file watermark image tidak didukung: {args.image}. "
-                    f"Format yang didukung: {', '.join(valid_exts)}"
+                    f"Unsupported watermark image format: {args.image}. "
+                    f"Supported formats: {', '.join(valid_exts)}"
                 )
 
     base_dir = os.getcwd()
